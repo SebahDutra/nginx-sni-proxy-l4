@@ -1,0 +1,23 @@
+services:
+  nginx-sni-proxy-l4:
+    image: nginx:1.29.5-alpine3.23
+    container_name: nginx_sni_proxy_l4
+    restart: always
+    ports:
+      - "443:443"
+    environment:
+      - SNI_MAPPINGS=${SNI_MAPPINGS}
+      - UPSTREAM_SERVERS=${UPSTREAM_SERVERS}
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+    networks:
+      - edge_proxy_network
+
+networks:
+  edge_proxy_network:
+    name: ${EDGE_PROXY_NETWORK_NAME}
+    ipam:
+      driver: default
+      config:
+        - subnet: ${EDGE_PROXY_NETWORK_SUBNET}
