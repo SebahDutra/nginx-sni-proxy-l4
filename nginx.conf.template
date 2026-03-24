@@ -1,0 +1,30 @@
+user nginx;
+worker_processes auto;
+
+events {
+  worker_connections 2048;
+}
+
+stream {
+  # Mapping generated dynamically by environment variables
+  map $ssl_preread_server_name $backend_name {
+    ${SNI_MAPPINGS}
+  }
+
+  # Upstreams generated dynamically by environment variables
+  ${UPSTREAM_SERVERS}
+
+  server {
+    listen 443;
+    listen [::]:443;
+    
+    ssl_preread on;
+    proxy_pass $backend_name;
+    
+    proxy_protocol on;
+    
+    # Long timeouts to keep WebSockets alive
+    proxy_connect_timeout 5s;
+    proxy_timeout 1h;
+  }
+}
