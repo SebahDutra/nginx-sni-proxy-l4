@@ -5,23 +5,28 @@ events {
   worker_connections 2048;
 }
 
+# ==========================================
+# LAYER 4 (TCP) - Main Traffic (443
+# ==========================================
 stream {
+  resolver 127.0.0.11 valid=5s;
+  resolver_timeout 2s;
+
+  #log_format stream_routing;
+
   # Mapping generated dynamically by environment variables
   map $ssl_preread_server_name $backend_name {
+    default ""; 
     ${SNI_MAPPINGS}
   }
-
-  # Upstreams generated dynamically by environment variables
-  ${UPSTREAM_SERVERS}
 
   server {
     listen 443;
     listen [::]:443;
     
     ssl_preread on;
-    proxy_pass $backend_name;
-    
     proxy_protocol on;
+    proxy_pass $backend_name;
     
     # Long timeouts to keep WebSockets alive
     proxy_connect_timeout 5s;
