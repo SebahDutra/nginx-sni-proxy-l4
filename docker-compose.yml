@@ -4,6 +4,7 @@ services:
     container_name: nginx_sni_proxy_l4
     restart: always
     ports:
+      - "80:80"
       - "443:443"
     environment:
       - SNI_MAPPINGS=${SNI_MAPPINGS}
