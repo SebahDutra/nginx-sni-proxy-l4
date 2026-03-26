@@ -7,8 +7,12 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      - SNI_MAPPINGS=${SNI_MAPPINGS}
-      - UPSTREAM_SERVERS=${UPSTREAM_SERVERS}
+      - TRUST_DIRECTIVES=${NSPL4_TRUST_DIRECTIVES}
+      - SNI_MAPPINGS=${NSPL4_SNI_MAPPINGS}
+      - UPSTREAM_SERVERS=${NSPL4_UPSTREAM_SERVERS}
+      - HTTP_UPSTREAMS=${NSPL4_HTTP_UPSTREAMS}
+      - HTTP_MAPPINGS=${NSPL4_HTTP_MAPPINGS}
+      - HTTP_DOMAINS=${NSPL4_HTTP_DOMAINS}
       - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
     volumes:
       - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
@@ -17,8 +21,8 @@ services:
 
 networks:
   edge_proxy_network:
-    name: ${EDGE_PROXY_NETWORK_NAME}
+    name: ${NSPL4_EDGE_PROXY_NETWORK_NAME}
     ipam:
       driver: default
       config:
-        - subnet: ${EDGE_PROXY_NETWORK_SUBNET}
+        - subnet: ${NSPL4_EDGE_PROXY_NETWORK_SUBNET}
