@@ -37,6 +37,7 @@ stream {
 # LAYER 7 (HTTP) - Exceptions and Redirects (80)
 # ==========================================
 http {
+  server_tokens off;
   resolver 127.0.0.11 valid=5s;
   
   ${TRUST_DIRECTIVES}
