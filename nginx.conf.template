@@ -33,3 +33,43 @@ stream {
     proxy_timeout 1h;
   }
 }
+# ==========================================
+# LAYER 7 (HTTP) - Exceptions and Redirects (80)
+# ==========================================
+http {
+  ${TRUST_DIRECTIVES}
+  real_ip_header CF-Connecting-IP;
+
+  # Dynamic mapping reading the 'Host' header
+  map $host $http_backend {
+    hostnames;
+    default "";
+    ${HTTP_MAPPINGS}
+  }
+
+  resolver 127.0.0.11 valid=5s;
+  
+  # 1. Catch-All Rule: Everything NOT in the $HTTP_DOMAINS list falls here
+  server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    return 301 https://$host$request_uri;
+  }
+
+  # 2. Exception Rule: Routes ONLY the listed domains to their containers
+  server {
+    listen 80;
+    listen [::]:80;
+    server_name ${HTTP_DOMAINS};
+
+    location / {
+      proxy_pass http://$http_backend;
+      
+      # Forwards essential original headers to the email server
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+}
